@@ -1,6 +1,5 @@
 App = angular.module("app", ['ionic'])
 
-
 App.run ($ionicPlatform) ->
 
   $ionicPlatform.ready ->
@@ -16,26 +15,9 @@ App.run ($ionicPlatform) ->
 
 App.config ($stateProvider, $urlRouterProvider) ->
   $stateProvider
-  .state("tab",
-    url: "/tab"
-    abstract: true
-    templateUrl: "templates/tabs.html"
-  ).state("tab.home",
+  .state("home",
     url: "/home"
-    views:
-      "home-tab":
-        templateUrl: "templates/home.html"
-  ).state("tab.vendors",
-    url: "/vendors"
-    views:
-      "vendors-tab":
-        templateUrl: "templates/vendors.html",
-        controller: "VendorsCtrl"
-  ).state("tab.about",
-    url: "/about"
-    views:
-      "about-tab":
-        templateUrl: "templates/about.html"
+    templateUrl: "templates/home.html"
   )
 
-  $urlRouterProvider.otherwise "/tab/home"
+  $urlRouterProvider.otherwise "/home"

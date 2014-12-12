@@ -16,40 +16,17 @@
   });
 
   App.config(function($stateProvider, $urlRouterProvider) {
-    $stateProvider.state("tab", {
-      url: "/tab",
-      abstract: true,
-      templateUrl: "templates/tabs.html"
-    }).state("tab.home", {
+    $stateProvider.state("home", {
       url: "/home",
-      views: {
-        "home-tab": {
-          templateUrl: "templates/home.html"
-        }
-      }
-    }).state("tab.vendors", {
-      url: "/vendors",
-      views: {
-        "vendors-tab": {
-          templateUrl: "templates/vendors.html",
-          controller: "VendorsCtrl"
-        }
-      }
-    }).state("tab.about", {
-      url: "/about",
-      views: {
-        "about-tab": {
-          templateUrl: "templates/about.html"
-        }
-      }
+      templateUrl: "templates/home.html"
     });
-    return $urlRouterProvider.otherwise("/tab/home");
+    return $urlRouterProvider.otherwise("/home");
   });
 
 }).call(this);
 
 (function() {
-  angular.module("app").controller("VendorsCtrl", function($scope) {
+  angular.module("app").controller("HomeCtrl", function($scope) {
     return $scope.vendors = [
       {
         name: "AngularJs",
