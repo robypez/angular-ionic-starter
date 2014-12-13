@@ -19,6 +19,7 @@ module.exports = function(config) {
         'www/lib/ionic/js/ionic.bundle.min.js',
         'www/lib/angular-ui-router/release/angular-ui-router.min.js',
         'www/lib/angular-mocks/angular-mocks.js',
+        'www/lib/ngstorage/ngStorage.min.js',
 
         // scripts
 

@@ -12,4 +12,4 @@ describe "The Home Controller", ->
     ctrl = $controller("HomeCtrl", {$scope: scope})
 
   it "should have the correct title", ->
-    expect("Page Title").toBe("Page Title") 
+    expect(true).toBe(true) 
