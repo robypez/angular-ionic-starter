@@ -18,6 +18,12 @@ App.config ($stateProvider, $urlRouterProvider) ->
   .state("home",
     url: "/home"
     templateUrl: "templates/home.html"
+    
+  )
+  .state("setting",
+    url: "/setting"
+    templateUrl: "templates/setting.html"
+    controller: 'SettingCtrl as setting'
   )
 
   $urlRouterProvider.otherwise "/home"
