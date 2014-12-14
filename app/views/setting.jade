@@ -3,14 +3,14 @@ ion-view(title='Preferenze')
   ion-content(has-header='false', padding='true')
     list
       .item.item-divider Generali
-      ion-toggle(ng-model="setting.examType", ng-checked="setting.examTypeChecked", toggle-class="toggle-calm", ng-true-value="oltre", ng-false-value="entro")
+      ion-toggle(ng-model="setting.examType", ng-checked="setting.examTypeChecked()", toggle-class="toggle-calm", ng-true-value="oltre", ng-false-value="entro")
         | Tipo di esame
       .item.item-divider Impostazioni domande
-      ion-toggle(ng-repeat="set in setting.settingList" ng-model="set.checked")
+      ion-toggle(ng-repeat="set in setting.settingList" ng-checked="setting.settingListChecked()" ng-model="set.checked")
         {{ set.text }}
       .item.item-divider Impostazioni domande per sezione
       label.item.item-input.item-select
         .input-label
          | Numero di domande per sezione
-        select(ng-model="setting.questionNumber" ng-options="option for option in setting.questionPossibility")
+        select(ng-model="setting.questionNumber" ng-change="setting.questionNumberChecked()" ng-options="option for option in setting.questionPossibility")
       

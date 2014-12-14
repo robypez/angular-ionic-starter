@@ -27,6 +27,13 @@ module.exports = [
         "clobbers": [
             "device"
         ]
+    },
+    {
+        "file": "plugins/com.brodysoft.sqlitePlugin/www/SQLitePlugin.js",
+        "id": "com.brodysoft.sqlitePlugin.SQLitePlugin",
+        "clobbers": [
+            "SQLitePlugin"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -34,7 +41,8 @@ module.exports.metadata =
 {
     "com.ionic.keyboard": "1.0.3",
     "org.apache.cordova.console": "0.2.10",
-    "org.apache.cordova.device": "0.2.12-dev"
+    "org.apache.cordova.device": "0.2.12-dev",
+    "com.brodysoft.sqlitePlugin": "1.0.3"
 }
 // BOTTOM OF METADATA
 });

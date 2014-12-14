@@ -1,5 +1,5 @@
 angular
-  .module("app", ['ionic','ionic.utils'])
+  .module("app", ['ionic'])
 
   .run ($ionicPlatform) ->
 
@@ -24,6 +24,11 @@ angular
       url: "/setting"
       templateUrl: "templates/setting.html"
       controller: 'SettingCtrl as setting'
+    )
+    .state("question",
+      url: "/question"
+      templateUrl: "templates/question.html"
+      controller: 'QuestionCtrl as question'
     )
 
     $urlRouterProvider.otherwise "/home" 
