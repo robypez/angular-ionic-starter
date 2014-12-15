@@ -1,4 +1,3 @@
-angular.module('app')
-.controller('HomeCtrl', () ->
-  
-) 
+class Home extends Controller
+  constructor: ->
+    console.log 'home'

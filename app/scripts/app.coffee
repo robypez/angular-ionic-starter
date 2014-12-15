@@ -23,12 +23,12 @@ angular
     .state("setting",
       url: "/setting"
       templateUrl: "templates/setting.html"
-      controller: 'SettingCtrl as setting'
+      controller: 'settingController as setting'
     )
     .state("question",
       url: "/question"
       templateUrl: "templates/question.html"
-      controller: 'QuestionCtrl as question'
+      controller: 'questionController as question'
     )
 
-    $urlRouterProvider.otherwise "/home" 
+    $urlRouterProvider.otherwise "/home"

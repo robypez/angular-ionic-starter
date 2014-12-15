@@ -3,9 +3,15 @@
 bower    = require('bower')
 sh       = require('shelljs')
 gulp     = require("gulp")
+ngClassify = require 'gulp-ng-classify'
 $        = require("gulp-load-plugins")(lazy: false)
 $run     = require('run-sequence')
 $logger  = $.util.log
+ngClassifyContent = ''
+ngClassifyOptions = {
+                    controller: {format: 'upperCamelCase', suffix: 'Ctrl'},
+                    factory:    {format: 'CamelCase'}
+                  }
 
 paths =
   styles:  ['./app/styles/ionic.app.scss']
@@ -32,6 +38,7 @@ gulp.task 'sass', (done) ->
 
 gulp.task 'coffee', (done) ->
   gulp.src(paths.scripts)
+    .pipe ngClassify(ngClassifyContent,ngClassifyOptions)
     .pipe($.plumber(errorHandler: $.notify.onError("Error: <%= error.message %>")))
     .pipe($.coffee(bare: false).on('error', $logger))
     .pipe($.jshint(".jshintrc"))
