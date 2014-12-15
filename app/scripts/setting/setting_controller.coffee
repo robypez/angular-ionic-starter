@@ -12,16 +12,13 @@ class Setting extends Controller
 
   examTypeChecked: () =>
     @DataService.setObject('setting_examtype',@examType)
-    console.log 'examTypeChecked'
     return
 
   settingListChecked: () =>
-    console.log 'settingListChecked'
     @DataService.setObject('setting_list',@settingList)
     return
 
   questionNumberChecked: () =>
-    console.log 'questionNumberChecked'
     @DataService.set('question_number',@questionNumber)
     return
  

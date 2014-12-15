@@ -1,7 +1,7 @@
 class Question extends Controller
   constructor: (@QuestionService) ->
     @questions = []
-    console.log 'pippo'
+    console.log 'question controller init'
     
 
   test: () =>

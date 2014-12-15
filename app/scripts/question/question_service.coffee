@@ -1,15 +1,15 @@
 class QuestionService extends Factory
-  constructor: (@Database) ->
-
+  constructor: (@DatabaseFactory) ->
+    
   all: () ->
-      console.log 'factory question'
-      @Database.query("SELECT * FROM documents").then (result) ->
-        @Database.fetchAll result
-      return
+    console.log 'factory question'
+    @DatabaseFactory.query("SELECT * FROM documents").then (result) ->
+      @DatabaseFactory.fetchAll result
+    return
 
   getById: (id) ->
-    @Database.query("SELECT * FROM documents WHERE id = ?", [id]).then (result) ->
-      @Database.fetch result
+    @DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then (result) ->
+      @DatabaseFactory.fetch result
     return
 
 # angular.module('app').factory 'QuestionService', ['DB', (DB) ->

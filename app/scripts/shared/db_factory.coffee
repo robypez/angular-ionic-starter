@@ -1,7 +1,9 @@
-class Database extends Factory 
+class DatabaseFactory extends Factory 
   constructor: (@$q, @DBCONFIG) ->
-    @db = window.openDatabase(DBCONFIG.name, "1.0", "database", -1)
-    angular.forEach DBCONFIG.tables, (table) ->
+
+  init: () ->
+    @db = window.openDatabase(@DBCONFIG.name, "1.0", "database", -1)
+    angular.forEach @DBCONFIG.tables, (table) ->
       columns = []
       angular.forEach table.columns, (column) ->
         columns.push column.name + " " + column.type
@@ -40,6 +42,8 @@ class Database extends Factory
 
   fetch: (result) ->
     result.rows.item 0
+
+  
 
 # angular.module('app').factory 'DB', ['$q, DB_CONFIG', ($q, DB_CONFIG) ->
 #   new class DB
