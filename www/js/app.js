@@ -1,13 +1,14 @@
 'use strict';
 (function() {
-  angular.module("app", ['ionic']).run(function($ionicPlatform) {
+  angular.module("app", ['ionic']).run(function($ionicPlatform, DatabaseFactory) {
     return $ionicPlatform.ready(function() {
       if (window.cordova && window.cordova.plugins.Keyboard) {
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
       }
       if (window.StatusBar) {
-        return StatusBar.styleDefault();
+        StatusBar.styleDefault();
       }
+      return DatabaseFactory.init();
     });
   }).config(function($stateProvider, $urlRouterProvider) {
     $stateProvider.state("home", {
@@ -74,21 +75,23 @@
 
   QuestionService = (function() {
     function QuestionService(DatabaseFactory) {
-      this.DatabaseFactory = DatabaseFactory;
+      var all, getById;
+      all = function() {
+        console.log('factory question');
+        return DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
+          return DatabaseFactory.fetchAll(result);
+        });
+      };
+      getById = function(id) {
+        return DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
+          return DatabaseFactory.fetch(result);
+        });
+      };
+      return {
+        all: all,
+        getById: getById
+      };
     }
-
-    QuestionService.prototype.all = function() {
-      console.log('factory question');
-      this.DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
-        return this.DatabaseFactory.fetchAll(result);
-      });
-    };
-
-    QuestionService.prototype.getById = function(id) {
-      this.DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
-        return this.DatabaseFactory.fetch(result);
-      });
-    };
 
     return QuestionService;
 
@@ -99,24 +102,78 @@
 }).call(this);
 
 (function() {
+  var Setting,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Setting = (function() {
+    function Setting(DataService, $log) {
+      this.DataService = DataService;
+      this.questionNumberChecked = __bind(this.questionNumberChecked, this);
+      this.settingListChecked = __bind(this.settingListChecked, this);
+      this.examTypeChecked = __bind(this.examTypeChecked, this);
+      this.examType = this.DataService.getObject('setting_examtype') || {
+        checked: false
+      };
+      this.settingList = this.DataService.getObject('setting_list') || [
+        {
+          text: 'Dai precedenza a domande sbagliate',
+          checked: false
+        }, {
+          text: 'Dai precedenza a domande mai fatte',
+          checked: false
+        }, {
+          text: 'Mostra subito la soluzione',
+          checked: false
+        }
+      ];
+      this.questionPossibility = [10, 20, 30, 40, 50];
+      this.questionNumber = this.DataService.get('question_number') || 30;
+      return;
+    }
+
+    Setting.prototype.examTypeChecked = function() {
+      this.DataService.setObject('setting_examtype', this.examType);
+    };
+
+    Setting.prototype.settingListChecked = function() {
+      this.DataService.setObject('setting_list', this.settingList);
+    };
+
+    Setting.prototype.questionNumberChecked = function() {
+      this.DataService.set('question_number', this.questionNumber);
+    };
+
+    return Setting;
+
+  })();
+
+  angular.module('app').controller('settingController', ['DataService', '$log', Setting]);
+
+}).call(this);
+
+(function() {
   var dataService;
 
   dataService = (function() {
     function dataService($window) {
-      this.$window = $window;
+      var get, getObject, set, setObject;
+      set = function(key, value) {
+        $window.localStorage[key] = value;
+      };
+      get = function(key, defaultValue) {
+        return $window.localStorage[key] || defaultValue;
+      };
+      setObject = function(key, value) {
+        $window.localStorage[key] = JSON.stringify(value);
+      };
+      getObject = function(key) {
+        return JSON.parse($window.localStorage[key] || '{}');
+      };
       return {
-        set: function(key, value) {
-          $window.localStorage[key] = value;
-        },
-        get: function(key, defaultValue) {
-          return $window.localStorage[key] || defaultValue;
-        },
-        setObject: function(key, value) {
-          $window.localStorage[key] = JSON.stringify(value);
-        },
-        getObject: function(key) {
-          return JSON.parse($window.localStorage[key] || '{}');
-        }
+        set: set,
+        getObject: getObject,
+        get: get,
+        setObject: setObject
       };
     }
 
@@ -179,115 +236,60 @@
   var DatabaseFactory;
 
   DatabaseFactory = (function() {
-    function DatabaseFactory($q, DBCONFIG) {
-      this.$q = $q;
-      this.DBCONFIG = DBCONFIG;
+    function DatabaseFactory($log, $q, DBCONFIG) {
+      var db, fetch, fetchAll, init, query;
+      db = null;
+      init = function() {
+        db = window.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
+        return angular.forEach(DBCONFIG.tables, function(table) {
+          var columns, q;
+          columns = [];
+          angular.forEach(table.columns, function(column) {
+            return columns.push("" + column.name + " " + column.type);
+          });
+          q = "CREATE TABLE IF NOT EXISTS " + table.name + " (" + (columns.join(',')) + ")";
+          query(q);
+          return $log.info("Table " + table.name + " initialized");
+        });
+      };
+      query = function(query, bindings) {
+        var deferred;
+        bindings = (typeof bindings !== "undefined" ? bindings : []);
+        deferred = $q.defer();
+        db.transaction(function(transaction) {
+          transaction.executeSql(query, bindings, (function(transaction, result) {
+            deferred.resolve(result);
+          }), function(transaction, error) {
+            deferred.reject(error);
+          });
+        });
+        return deferred.promise;
+      };
+      fetchAll = function(result) {
+        var i, output;
+        output = [];
+        i = 0;
+        while (i < result.rows.length) {
+          output.push(result.rows.item(i));
+          i++;
+        }
+        return output;
+      };
+      fetch = function(result) {
+        return result.rows.item(0);
+      };
+      return {
+        fetch: fetch,
+        fetchAll: fetchAll,
+        init: init,
+        query: query
+      };
     }
-
-    DatabaseFactory.prototype.init = function() {
-      this.db = window.openDatabase(this.DBCONFIG.name, "1.0", "database", -1);
-      return angular.forEach(this.DBCONFIG.tables, function(table) {
-        var columns;
-        columns = [];
-        angular.forEach(table.columns, function(column) {
-          var query;
-          columns.push(column.name + " " + column.type);
-          return;
-          query = "CREATE TABLE IF NOT EXISTS " + table.name + " (" + columns.join(",") + ")";
-          this.query(query);
-          console.log("Table " + table.name + " initialized");
-        });
-      });
-    };
-
-    DatabaseFactory.prototype.query = function(query, bindings) {
-      var deferred;
-      bindings = (typeof bindings !== "undefined" ? bindings : []);
-      deferred = this.$q.defer();
-      this.db.transaction(function(transaction) {
-        transaction.executeSql(query, bindings, (function(transaction, result) {
-          deferred.resolve(result);
-        }), function(transaction, error) {
-          deferred.reject(error);
-        });
-      });
-      return deferred.promise;
-    };
-
-    DatabaseFactory.prototype.fetchAll = function(result) {
-      var i, output;
-      output = [];
-      i = 0;
-      while (i < result.rows.length) {
-        output.push(result.rows.item(i));
-        i++;
-      }
-      return output;
-    };
-
-    DatabaseFactory.prototype.fetch = function(result) {
-      return result.rows.item(0);
-    };
 
     return DatabaseFactory;
 
   })();
 
-  angular.module('app').factory('DatabaseFactory', ['$q', 'DBCONFIG', DatabaseFactory]);
-
-}).call(this);
-
-(function() {
-
-
-}).call(this);
-
-(function() {
-  var Setting,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  Setting = (function() {
-    function Setting(DataService, $log) {
-      this.DataService = DataService;
-      this.questionNumberChecked = __bind(this.questionNumberChecked, this);
-      this.settingListChecked = __bind(this.settingListChecked, this);
-      this.examTypeChecked = __bind(this.examTypeChecked, this);
-      this.examType = this.DataService.getObject('setting_examtype') || {
-        checked: false
-      };
-      this.settingList = this.DataService.getObject('setting_list') || [
-        {
-          text: 'Dai precedenza a domande sbagliate',
-          checked: false
-        }, {
-          text: 'Dai precedenza a domande mai fatte',
-          checked: false
-        }, {
-          text: 'Mostra subito la soluzione',
-          checked: false
-        }
-      ];
-      this.questionPossibility = [10, 20, 30, 40, 50];
-      this.questionNumber = this.DataService.get('question_number') || 30;
-      return;
-    }
-
-    Setting.prototype.examTypeChecked = function() {
-      this.DataService.setObject('setting_examtype', this.examType);
-    };
-
-    Setting.prototype.settingListChecked = function() {
-      this.DataService.setObject('setting_list', this.settingList);
-    };
-
-    Setting.prototype.questionNumberChecked = function() {
-      this.DataService.set('question_number', this.questionNumber);
-    };
-
-    return Setting;
-
-  })();
-
-  angular.module('app').controller('settingController', ['DataService', '$log', Setting]);
+  angular.module('app').factory('DatabaseFactory', ['$log', '$q', 'DBCONFIG', DatabaseFactory]);
 
 }).call(this);

@@ -1,7 +1,7 @@
 angular
   .module("app", ['ionic'])
 
-  .run ($ionicPlatform) ->
+  .run ($ionicPlatform, DatabaseFactory) ->
 
     $ionicPlatform.ready ->
       # Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -12,6 +12,7 @@ angular
       if window.StatusBar
         # org.apache.cordova.statusbar required
         StatusBar.styleDefault()
+      DatabaseFactory.init()
 
   .config ($stateProvider, $urlRouterProvider) ->
     $stateProvider

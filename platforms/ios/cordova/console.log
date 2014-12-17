@@ -1,0 +1,8 @@
+2014-12-17 09:18:55.587 ionic-gulp-seed[27795:1555976] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/1EC8D6B7-40E4-4D1D-9AA1-7D0C88634721/Library/Cookies/Cookies.binarycookies
+2014-12-17 09:18:56.034 ionic-gulp-seed[27795:1555976] Apache Cordova native platform version 3.7.0 is starting.
+2014-12-17 09:18:56.034 ionic-gulp-seed[27795:1555976] Multi-tasking -> Device: YES, App: YES
+2014-12-17 09:18:56.054 ionic-gulp-seed[27795:1555976] Unlimited access to network resources
+2014-12-17 09:18:56.583 ionic-gulp-seed[27795:1555976] [CDVTimer][keyboard] 0.118017ms
+2014-12-17 09:18:56.583 ionic-gulp-seed[27795:1555976] [CDVTimer][TotalPluginStartup] 0.398993ms
+2014-12-17 09:18:57.740 ionic-gulp-seed[27795:1555976] Resetting plugins due to page load.
+2014-12-17 09:18:58.095 ionic-gulp-seed[27795:1555976] Finished load of: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Bundle/Application/E4796D09-0483-46B2-8CEB-2994513B70FB/ionic-gulp-seed.app/www/index.html#/home
