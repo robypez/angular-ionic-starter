@@ -13,7 +13,8 @@
   }).config(function($stateProvider, $urlRouterProvider) {
     $stateProvider.state("home", {
       url: "/home",
-      templateUrl: "templates/home.html"
+      templateUrl: "templates/home.html",
+      controller: 'homeController as home'
     }).state("setting", {
       url: "/setting",
       templateUrl: "templates/setting.html",
@@ -32,15 +33,15 @@
   var Home;
 
   Home = (function() {
-    function Home() {
-      console.log('home');
+    function Home($log, DatabaseFactory) {
+      DatabaseFactory.seed();
     }
 
     return Home;
 
   })();
 
-  angular.module('app').controller('homeController', [Home]);
+  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
 
 }).call(this);
 
@@ -53,7 +54,6 @@
       this.QuestionService = QuestionService;
       this.test = __bind(this.test, this);
       this.questions = [];
-      console.log('question controller init');
     }
 
     Question.prototype.test = function() {
@@ -74,7 +74,7 @@
   var QuestionService;
 
   QuestionService = (function() {
-    function QuestionService(DatabaseFactory) {
+    function QuestionService(DatabaseFactory, $log) {
       var all, getById;
       all = function() {
         console.log('factory question');
@@ -89,7 +89,8 @@
       };
       return {
         all: all,
-        getById: getById
+        getById: getById,
+        seed: seed
       };
     }
 
@@ -97,7 +98,7 @@
 
   })();
 
-  angular.module('app').factory('QuestionService', ['DatabaseFactory', QuestionService]);
+  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
 
 }).call(this);
 
@@ -152,6 +153,48 @@
 }).call(this);
 
 (function() {
+  var CategorySeed;
+
+  CategorySeed = (function() {
+    function CategorySeed() {
+      return [
+        {
+          id: 1,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 2,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 3,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 4,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 5,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 6,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }
+      ];
+    }
+
+    return CategorySeed;
+
+  })();
+
+  angular.module('app').constant('CATEGORY_SEED', CategorySeed());
+
+}).call(this);
+
+(function() {
   var dataService;
 
   dataService = (function() {
@@ -191,32 +234,63 @@
   DBconfig = (function() {
     function DBconfig() {
       return {
-        name: 'DB',
+        name: 'nautica',
         tables: [
           {
-            name: 'questions',
+            name: 'Questions',
             columns: [
               {
                 name: 'id',
-                type: 'integer primary key'
+                type: 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'
               }, {
-                name: 'title',
-                type: 'text'
+                name: 'text',
+                type: 'TEXT'
               }, {
-                name: 'keywords',
-                type: 'text'
+                name: 'exam_type',
+                type: 'TEXT'
               }, {
-                name: 'version',
-                type: 'integer'
+                name: 'section_id',
+                type: 'REFERENCES Sections(id)'
               }, {
-                name: 'release_date',
-                type: 'text'
+                name: 'errors_count',
+                type: 'INTEGER'
               }, {
-                name: 'filename',
-                type: 'text'
+                name: 'done_count',
+                type: 'INTEGER'
               }, {
-                name: 'context',
-                type: 'text'
+                name: 'image',
+                type: 'TEXT'
+              }
+            ]
+          }, {
+            name: 'Answers',
+            columns: [
+              {
+                name: 'id',
+                type: 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'
+              }, {
+                name: 'text',
+                type: 'TEXT'
+              }, {
+                name: 'correct',
+                type: 'INTEGER'
+              }, {
+                name: 'question_id',
+                type: 'REFERENCES Questions(id)'
+              }
+            ]
+          }, {
+            name: 'Sections',
+            columns: [
+              {
+                name: 'id',
+                type: 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'
+              }, {
+                name: 'label',
+                type: 'TEXT'
+              }, {
+                name: 'image',
+                type: 'TEXT'
               }
             ]
           }
@@ -236,8 +310,8 @@
   var DatabaseFactory;
 
   DatabaseFactory = (function() {
-    function DatabaseFactory($log, $q, DBCONFIG) {
-      var db, fetch, fetchAll, init, query;
+    function DatabaseFactory($log, $q, DBCONFIG, CATEGORY_SEED, $http) {
+      var category_init, db, fetch, fetchAll, import_category, import_data, init, query, removeQuotes, seed;
       db = null;
       init = function() {
         db = window.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
@@ -247,6 +321,9 @@
           angular.forEach(table.columns, function(column) {
             return columns.push("" + column.name + " " + column.type);
           });
+          q = "DROP TABLE " + table.name;
+          query(q);
+          $log.info("Table " + table.name + " deleted");
           q = "CREATE TABLE IF NOT EXISTS " + table.name + " (" + (columns.join(',')) + ")";
           query(q);
           return $log.info("Table " + table.name + " initialized");
@@ -261,9 +338,40 @@
             deferred.resolve(result);
           }), function(transaction, error) {
             deferred.reject(error);
+            $log.error(error.message);
           });
         });
         return deferred.promise;
+      };
+      seed = function() {
+        category_init();
+        return $http.get('data/question.json').then(function(result) {
+          return import_data(result.data);
+        });
+      };
+      category_init = function() {
+        return angular.forEach(CATEGORY_SEED, function(category) {
+          return import_category(category);
+        });
+      };
+      import_category = function(category) {
+        var q;
+        q = "INSERT INTO Sections (id, label, image) VALUES (" + category['id'] + ",'" + (removeQuotes(category['category'])) + "','" + category['image'] + "')";
+        return query(q);
+      };
+      import_data = function(data) {
+        var d, q;
+        $log.info(data[0]);
+        $log.info(data[0]['text']);
+        $log.info(data[0]['section']);
+        $log.info(data[0]['image']['image']['url']);
+        d = data[0];
+        q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count) VALUES (" + d['id'] + ",'" + (removeQuotes(d['text'])) + "','" + d['quiz_type'] + "',0,0)";
+        $log.info(q);
+        return query(q);
+      };
+      removeQuotes = function(str) {
+        return str.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
       };
       fetchAll = function(result) {
         var i, output;
@@ -282,7 +390,8 @@
         fetch: fetch,
         fetchAll: fetchAll,
         init: init,
-        query: query
+        query: query,
+        seed: seed
       };
     }
 
@@ -290,6 +399,51 @@
 
   })();
 
-  angular.module('app').factory('DatabaseFactory', ['$log', '$q', 'DBCONFIG', DatabaseFactory]);
+  angular.module('app').factory('DatabaseFactory', ['$log', '$q', 'DBCONFIG', 'CATEGORY_SEED', '$http', DatabaseFactory]);
+
+}).call(this);
+
+(function() {
+  var Loader, LoaderInterceptor;
+
+  Loader = (function() {
+    function Loader($httpProvider) {
+      $httpProvider.interceptors.push(function($rootScope) {
+        return {
+          request: function(config) {
+            $rootScope.$broadcast("loading:show");
+            return config;
+          },
+          response: function(response) {
+            $rootScope.$broadcast("loading:hide");
+            return response;
+          }
+        };
+      });
+      return;
+    }
+
+    return Loader;
+
+  })();
+
+  LoaderInterceptor = (function() {
+    function LoaderInterceptor($rootScope, $ionicLoading) {
+      $rootScope.$on("loading:show", function() {
+        $ionicLoading.show({
+          template: "Loading Question"
+        });
+      });
+      $rootScope.$on("loading:hide", function() {
+        $ionicLoading.hide();
+      });
+      return;
+    }
+
+    return LoaderInterceptor;
+
+  })();
+
+  angular.module('app').config(['$httpProvider', Loader]).run(['$rootScope', '$ionicLoading', LoaderInterceptor]);
 
 }).call(this);

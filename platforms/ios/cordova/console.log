@@ -6,3 +6,47 @@
 2014-12-17 09:18:56.583 ionic-gulp-seed[27795:1555976] [CDVTimer][TotalPluginStartup] 0.398993ms
 2014-12-17 09:18:57.740 ionic-gulp-seed[27795:1555976] Resetting plugins due to page load.
 2014-12-17 09:18:58.095 ionic-gulp-seed[27795:1555976] Finished load of: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Bundle/Application/E4796D09-0483-46B2-8CEB-2994513B70FB/ionic-gulp-seed.app/www/index.html#/home
+2014-12-18 23:32:51.543 ionic-gulp-seed[30630:1813121] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/143ED4E8-30DA-42D1-97B8-697945CFE606/Library/Cookies/Cookies.binarycookies
+2014-12-18 23:32:51.902 ionic-gulp-seed[30630:1813121] Apache Cordova native platform version 3.7.0 is starting.
+2014-12-18 23:32:51.903 ionic-gulp-seed[30630:1813121] Multi-tasking -> Device: YES, App: YES
+2014-12-18 23:32:51.927 ionic-gulp-seed[30630:1813121] Unlimited access to network resources
+2014-12-18 23:32:52.406 ionic-gulp-seed[30630:1813121] [CDVTimer][keyboard] 0.104010ms
+2014-12-18 23:32:52.407 ionic-gulp-seed[30630:1813121] [CDVTimer][TotalPluginStartup] 0.397980ms
+2014-12-18 23:32:52.809 ionic-gulp-seed[30630:1813121] Resetting plugins due to page load.
+2014-12-18 23:32:53.182 ionic-gulp-seed[30630:1813121] Finished load of: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Bundle/Application/C4A51668-29A9-4E99-8604-8ADA5B20FA31/ionic-gulp-seed.app/www/index.html#/home
+2014-12-18 23:33:44.458 ionic-gulp-seed[31116:1814444] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/D0BC0E72-3BD3-49A8-979D-6DB4749E123E/Library/Cookies/Cookies.binarycookies
+2014-12-18 23:33:44.573 ionic-gulp-seed[31116:1814444] Apache Cordova native platform version 3.7.0 is starting.
+2014-12-18 23:33:44.574 ionic-gulp-seed[31116:1814444] Multi-tasking -> Device: YES, App: YES
+2014-12-18 23:33:44.576 ionic-gulp-seed[31116:1814444] Unlimited access to network resources
+2014-12-18 23:33:44.828 ionic-gulp-seed[31116:1814444] [CDVTimer][keyboard] 0.069022ms
+2014-12-18 23:33:44.828 ionic-gulp-seed[31116:1814444] [CDVTimer][TotalPluginStartup] 0.263035ms
+2014-12-18 23:33:44.980 ionic-gulp-seed[31116:1814444] Resetting plugins due to page load.
+2014-12-18 23:33:45.273 ionic-gulp-seed[31116:1814444] Finished load of: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Bundle/Application/0B69498B-0A94-45F5-83F1-EC087C7B5E39/ionic-gulp-seed.app/www/index.html#/home
+2014-12-18 23:33:50.785 ionic-gulp-seed[31116:1814553] Terminating since there is no system app.
+2014-12-18 23:33:50.805 ionic-gulp-seed[31116:1814560] BSXPCMessage received error for message: Connection invalid
+2014-12-18 23:34:38.891 ionic-gulp-seed[31603:1815681] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/3371EF5A-0CDD-4CD4-98EE-A467E3147567/Library/Cookies/Cookies.binarycookies
+2014-12-18 23:34:39.004 ionic-gulp-seed[31603:1815681] Apache Cordova native platform version 3.7.0 is starting.
+2014-12-18 23:34:39.004 ionic-gulp-seed[31603:1815681] Multi-tasking -> Device: YES, App: YES
+2014-12-18 23:34:39.006 ionic-gulp-seed[31603:1815681] Unlimited access to network resources
+2014-12-18 23:34:39.233 ionic-gulp-seed[31603:1815681] [CDVTimer][keyboard] 0.063002ms
+2014-12-18 23:34:39.233 ionic-gulp-seed[31603:1815681] [CDVTimer][TotalPluginStartup] 0.270009ms
+2014-12-18 23:34:39.386 ionic-gulp-seed[31603:1815681] Resetting plugins due to page load.
+2014-12-18 23:34:39.663 ionic-gulp-seed[31603:1815681] Finished load of: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Bundle/Application/881DAC11-A4B4-47F4-97AD-DDE8BBD673C1/ionic-gulp-seed.app/www/index.html#/home
+2014-12-18 23:36:53.957 ionic-gulp-seed[32102:1817935] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/E6C6476F-DF74-49BC-8606-BA04D16852BE/Library/Cookies/Cookies.binarycookies
+2014-12-18 23:36:54.079 ionic-gulp-seed[32102:1817935] Apache Cordova native platform version 3.7.0 is starting.
+2014-12-18 23:36:54.079 ionic-gulp-seed[32102:1817935] Multi-tasking -> Device: YES, App: YES
+2014-12-18 23:36:54.082 ionic-gulp-seed[32102:1817935] Unlimited access to network resources
+2014-12-18 23:36:54.328 ionic-gulp-seed[32102:1817935] [CDVTimer][keyboard] 0.150979ms
+2014-12-18 23:36:54.328 ionic-gulp-seed[32102:1817935] [CDVTimer][TotalPluginStartup] 0.568032ms
+2014-12-18 23:36:54.496 ionic-gulp-seed[32102:1817935] Resetting plugins due to page load.
+2014-12-18 23:36:54.758 ionic-gulp-seed[32102:1817935] Finished load of: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Bundle/Application/91BA6A77-1054-4591-B1A8-861D90D93D9E/ionic-gulp-seed.app/www/index.html#/home
+2014-12-18 23:37:41.614 ionic-gulp-seed[32548:1819141] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/CEB21099-B15A-4E8A-821A-89FAAFC80D46/Library/Cookies/Cookies.binarycookies
+2014-12-18 23:37:41.762 ionic-gulp-seed[32548:1819141] Apache Cordova native platform version 3.7.0 is starting.
+2014-12-18 23:37:41.763 ionic-gulp-seed[32548:1819141] Multi-tasking -> Device: YES, App: YES
+2014-12-18 23:37:41.764 ionic-gulp-seed[32548:1819141] Unlimited access to network resources
+2014-12-18 23:37:42.046 ionic-gulp-seed[32548:1819141] [CDVTimer][keyboard] 0.072002ms
+2014-12-18 23:37:42.046 ionic-gulp-seed[32548:1819141] [CDVTimer][TotalPluginStartup] 0.275970ms
+2014-12-18 23:37:42.253 ionic-gulp-seed[32548:1819141] Resetting plugins due to page load.
+2014-12-18 23:37:42.684 ionic-gulp-seed[32548:1819141] Finished load of: http://192.168.1.9:8100/#/home
+2014-12-18 23:37:59.693 ionic-gulp-seed[32548:1819141] Resetting plugins due to page load.
+2014-12-18 23:37:59.860 ionic-gulp-seed[32548:1819141] Finished load of: http://192.168.1.9:8100/#/setting

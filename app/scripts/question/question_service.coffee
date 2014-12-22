@@ -1,5 +1,5 @@
 class QuestionService extends Factory
-  constructor: (DatabaseFactory) ->
+  constructor: (DatabaseFactory, $log) ->
     
     all = () ->
       console.log 'factory question'
@@ -11,4 +11,4 @@ class QuestionService extends Factory
       DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then (result) ->
         DatabaseFactory.fetch result
     
-    return {all, getById}
+    return {all, getById, seed}

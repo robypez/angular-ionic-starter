@@ -1,3 +1,3 @@
 class Home extends Controller
-  constructor: ->
-    console.log 'home'
+  constructor: ($log, DatabaseFactory) ->
+    DatabaseFactory.seed()

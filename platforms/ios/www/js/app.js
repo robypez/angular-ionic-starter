@@ -13,7 +13,8 @@
   }).config(function($stateProvider, $urlRouterProvider) {
     $stateProvider.state("home", {
       url: "/home",
-      templateUrl: "templates/home.html"
+      templateUrl: "templates/home.html",
+      controller: 'homeController as home'
     }).state("setting", {
       url: "/setting",
       templateUrl: "templates/setting.html",
@@ -25,22 +26,6 @@
     });
     return $urlRouterProvider.otherwise("/home");
   });
-
-}).call(this);
-
-(function() {
-  var Home;
-
-  Home = (function() {
-    function Home() {
-      console.log('home');
-    }
-
-    return Home;
-
-  })();
-
-  angular.module('app').controller('homeController', [Home]);
 
 }).call(this);
 
@@ -74,7 +59,7 @@
   var QuestionService;
 
   QuestionService = (function() {
-    function QuestionService(DatabaseFactory) {
+    function QuestionService(DatabaseFactory, $log) {
       var all, getById;
       all = function() {
         console.log('factory question');
@@ -89,7 +74,8 @@
       };
       return {
         all: all,
-        getById: getById
+        getById: getById,
+        seed: seed
       };
     }
 
@@ -97,7 +83,248 @@
 
   })();
 
-  angular.module('app').factory('QuestionService', ['DatabaseFactory', QuestionService]);
+  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
+
+}).call(this);
+
+(function() {
+  var dataService;
+
+  dataService = (function() {
+    function dataService($window) {
+      var get, getObject, set, setObject;
+      set = function(key, value) {
+        $window.localStorage[key] = value;
+      };
+      get = function(key, defaultValue) {
+        return $window.localStorage[key] || defaultValue;
+      };
+      setObject = function(key, value) {
+        $window.localStorage[key] = JSON.stringify(value);
+      };
+      getObject = function(key) {
+        return JSON.parse($window.localStorage[key] || '{}');
+      };
+      return {
+        set: set,
+        getObject: getObject,
+        get: get,
+        setObject: setObject
+      };
+    }
+
+    return dataService;
+
+  })();
+
+  angular.module('app').factory('DataService', ['$window', dataService]);
+
+}).call(this);
+
+(function() {
+  var DBconfig;
+
+  DBconfig = (function() {
+    function DBconfig() {
+      return {
+        name: 'nautica',
+        tables: [
+          {
+            name: 'questions',
+            columns: [
+              {
+                name: 'id',
+                type: 'integer primary key'
+              }, {
+                name: 'text',
+                type: 'text'
+              }, {
+                name: 'exam_type',
+                type: 'text'
+              }, {
+                name: 'section_id',
+                type: 'integer'
+              }, {
+                name: 'errors_count',
+                type: 'integer'
+              }, {
+                name: 'done_count',
+                type: 'integer'
+              }, {
+                name: 'image',
+                type: 'text'
+              }
+            ]
+          }, {
+            name: 'answers',
+            columns: [
+              {
+                name: 'id',
+                type: 'integer primary key'
+              }, {
+                name: 'text',
+                type: 'text'
+              }, {
+                name: 'correct',
+                type: 'integer'
+              }
+            ]
+          }, {
+            name: 'section',
+            columns: [
+              {
+                name: 'id',
+                type: 'integer primary key'
+              }, {
+                name: 'label',
+                type: 'text'
+              }, {
+                name: 'image',
+                type: 'text'
+              }
+            ]
+          }
+        ]
+      };
+    }
+
+    return DBconfig;
+
+  })();
+
+  angular.module('app').constant('DBCONFIG', DBconfig());
+
+}).call(this);
+
+(function() {
+  var DatabaseFactory;
+
+  DatabaseFactory = (function() {
+    function DatabaseFactory($log, $q, DBCONFIG, $http) {
+      var db, fetch, fetchAll, import_data, init, query, seed;
+      db = null;
+      init = function() {
+        db = window.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
+        return angular.forEach(DBCONFIG.tables, function(table) {
+          var columns, q;
+          columns = [];
+          angular.forEach(table.columns, function(column) {
+            return columns.push("" + column.name + " " + column.type);
+          });
+          q = "CREATE TABLE IF NOT EXISTS " + table.name + " (" + (columns.join(',')) + ")";
+          query(q);
+          return $log.info("Table " + table.name + " initialized");
+        });
+      };
+      query = function(query, bindings) {
+        var deferred;
+        bindings = (typeof bindings !== "undefined" ? bindings : []);
+        deferred = $q.defer();
+        db.transaction(function(transaction) {
+          transaction.executeSql(query, bindings, (function(transaction, result) {
+            deferred.resolve(result);
+          }), function(transaction, error) {
+            deferred.reject(error);
+          });
+        });
+        return deferred.promise;
+      };
+      seed = function() {
+        return $http.get('data/question.json').then(function(result) {
+          return import_data(result.data);
+        });
+      };
+      import_data = function(data) {
+        return $log.info(data);
+      };
+      fetchAll = function(result) {
+        var i, output;
+        output = [];
+        i = 0;
+        while (i < result.rows.length) {
+          output.push(result.rows.item(i));
+          i++;
+        }
+        return output;
+      };
+      fetch = function(result) {
+        return result.rows.item(0);
+      };
+      return {
+        fetch: fetch,
+        fetchAll: fetchAll,
+        init: init,
+        query: query,
+        seed: seed
+      };
+    }
+
+    return DatabaseFactory;
+
+  })();
+
+  angular.module('app').factory('DatabaseFactory', ['$log', '$q', 'DBCONFIG', '$http', DatabaseFactory]);
+
+}).call(this);
+
+(function() {
+  var Loader, LoaderInterceptor;
+
+  Loader = (function() {
+    function Loader($httpProvider) {
+      $httpProvider.interceptors.push(function($rootScope) {
+        return {
+          request: function(config) {
+            $rootScope.$broadcast("loading:show");
+            return config;
+          },
+          response: function(response) {
+            $rootScope.$broadcast("loading:hide");
+            return response;
+          }
+        };
+      });
+      return;
+    }
+
+    return Loader;
+
+  })();
+
+  LoaderInterceptor = (function() {
+    function LoaderInterceptor($rootScope, $ionicLoading) {
+      $rootScope.$on("loading:show", function() {
+        $ionicLoading.show({
+          template: "Loading Question"
+        });
+      });
+      $rootScope.$on("loading:hide", function() {
+        $ionicLoading.hide();
+      });
+      return;
+    }
+
+    return LoaderInterceptor;
+
+  })();
+
+  angular.module('app').config(['$httpProvider', Loader]).run(['$rootScope', '$ionicLoading', LoaderInterceptor]);
+
+}).call(this);
+
+(function() {
+  var Home;
+
+  Home = (function() {
+    function Home($log, DatabaseFactory) {
+      DatabaseFactory.seed();
+    }
+
+    return Home;
+
+  })();
+
+  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
 
 }).call(this);
 
@@ -148,148 +375,5 @@
   })();
 
   angular.module('app').controller('settingController', ['DataService', '$log', Setting]);
-
-}).call(this);
-
-(function() {
-  var dataService;
-
-  dataService = (function() {
-    function dataService($window) {
-      var get, getObject, set, setObject;
-      set = function(key, value) {
-        $window.localStorage[key] = value;
-      };
-      get = function(key, defaultValue) {
-        return $window.localStorage[key] || defaultValue;
-      };
-      setObject = function(key, value) {
-        $window.localStorage[key] = JSON.stringify(value);
-      };
-      getObject = function(key) {
-        return JSON.parse($window.localStorage[key] || '{}');
-      };
-      return {
-        set: set,
-        getObject: getObject,
-        get: get,
-        setObject: setObject
-      };
-    }
-
-    return dataService;
-
-  })();
-
-  angular.module('app').factory('DataService', ['$window', dataService]);
-
-}).call(this);
-
-(function() {
-  var DBconfig;
-
-  DBconfig = (function() {
-    function DBconfig() {
-      return {
-        name: 'DB',
-        tables: [
-          {
-            name: 'questions',
-            columns: [
-              {
-                name: 'id',
-                type: 'integer primary key'
-              }, {
-                name: 'title',
-                type: 'text'
-              }, {
-                name: 'keywords',
-                type: 'text'
-              }, {
-                name: 'version',
-                type: 'integer'
-              }, {
-                name: 'release_date',
-                type: 'text'
-              }, {
-                name: 'filename',
-                type: 'text'
-              }, {
-                name: 'context',
-                type: 'text'
-              }
-            ]
-          }
-        ]
-      };
-    }
-
-    return DBconfig;
-
-  })();
-
-  angular.module('app').constant('DBCONFIG', DBconfig());
-
-}).call(this);
-
-(function() {
-  var DatabaseFactory;
-
-  DatabaseFactory = (function() {
-    function DatabaseFactory($log, $q, DBCONFIG) {
-      var db, fetch, fetchAll, init, query;
-      db = null;
-      init = function() {
-        db = window.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
-        return angular.forEach(DBCONFIG.tables, function(table) {
-          var columns, q;
-          columns = [];
-          angular.forEach(table.columns, function(column) {
-            return columns.push("" + column.name + " " + column.type);
-          });
-          q = "CREATE TABLE IF NOT EXISTS " + table.name + " (" + (columns.join(',')) + ")";
-          query(q);
-          return $log.info("Table " + table.name + " initialized");
-        });
-      };
-      query = function(query, bindings) {
-        var deferred;
-        bindings = (typeof bindings !== "undefined" ? bindings : []);
-        deferred = $q.defer();
-        db.transaction(function(transaction) {
-          transaction.executeSql(query, bindings, (function(transaction, result) {
-            deferred.resolve(result);
-          }), function(transaction, error) {
-            deferred.reject(error);
-          });
-        });
-        return deferred.promise;
-      };
-      fetchAll = function(result) {
-        var i, output;
-        output = [];
-        i = 0;
-        while (i < result.rows.length) {
-          output.push(result.rows.item(i));
-          i++;
-        }
-        return output;
-      };
-      fetch = function(result) {
-        return result.rows.item(0);
-      };
-      return {
-        fetch: fetch,
-        fetchAll: fetchAll,
-        init: init,
-        query: query
-      };
-    }
-
-    return DatabaseFactory;
-
-  })();
-
-  angular.module('app').factory('DatabaseFactory', ['$log', '$q', 'DBCONFIG', DatabaseFactory]);
 
 }).call(this);

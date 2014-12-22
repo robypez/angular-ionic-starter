@@ -19,6 +19,7 @@ angular
     .state("home",
       url: "/home"
       templateUrl: "templates/home.html"
+      controller: 'homeController as home'
       
     )
     .state("setting",
