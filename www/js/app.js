@@ -1,6 +1,6 @@
 'use strict';
 (function() {
-  angular.module("app", ['ionic']).run(function($ionicPlatform, DatabaseFactory) {
+  angular.module("app", ['ionic', 'ngCordova']).run(function($ionicPlatform, $cordovaSQLite, DatabaseFactory) {
     return $ionicPlatform.ready(function() {
       if (window.cordova && window.cordova.plugins.Keyboard) {
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
@@ -26,79 +26,6 @@
     });
     return $urlRouterProvider.otherwise("/home");
   });
-
-}).call(this);
-
-(function() {
-  var Home;
-
-  Home = (function() {
-    function Home($log, DatabaseFactory) {
-      DatabaseFactory.seed();
-    }
-
-    return Home;
-
-  })();
-
-  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
-
-}).call(this);
-
-(function() {
-  var Question,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  Question = (function() {
-    function Question(QuestionService) {
-      this.QuestionService = QuestionService;
-      this.test = __bind(this.test, this);
-      this.questions = [];
-    }
-
-    Question.prototype.test = function() {
-      return this.QuestionService.all().then(function(questions) {
-        this.questions = questions;
-      });
-    };
-
-    return Question;
-
-  })();
-
-  angular.module('app').controller('questionController', ['QuestionService', Question]);
-
-}).call(this);
-
-(function() {
-  var QuestionService;
-
-  QuestionService = (function() {
-    function QuestionService(DatabaseFactory, $log) {
-      var all, getById;
-      all = function() {
-        console.log('factory question');
-        return DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
-          return DatabaseFactory.fetchAll(result);
-        });
-      };
-      getById = function(id) {
-        return DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
-          return DatabaseFactory.fetch(result);
-        });
-      };
-      return {
-        all: all,
-        getById: getById,
-        seed: seed
-      };
-    }
-
-    return QuestionService;
-
-  })();
-
-  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
 
 }).call(this);
 
@@ -311,10 +238,10 @@
 
   DatabaseFactory = (function() {
     function DatabaseFactory($log, $q, DBCONFIG, CATEGORY_SEED, $http) {
-      var category_init, db, fetch, fetchAll, import_category, import_data, init, query, removeQuotes, seed;
+      var category_init, db, fetch, fetchAll, fix_correct, fix_image, import_category, import_questions, import_single_answer, import_single_question, init, query, removeQuotes, seed;
       db = null;
       init = function() {
-        db = window.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
+        db = window.openDatabase(DBCONFIG.name, '1.0', 'Test', -1);
         return angular.forEach(DBCONFIG.tables, function(table) {
           var columns, q;
           columns = [];
@@ -346,7 +273,7 @@
       seed = function() {
         category_init();
         return $http.get('data/question.json').then(function(result) {
-          return import_data(result.data);
+          return import_questions(result.data);
         });
       };
       category_init = function() {
@@ -359,19 +286,40 @@
         q = "INSERT INTO Sections (id, label, image) VALUES (" + category['id'] + ",'" + (removeQuotes(category['category'])) + "','" + category['image'] + "')";
         return query(q);
       };
-      import_data = function(data) {
-        var d, q;
-        $log.info(data[0]);
-        $log.info(data[0]['text']);
-        $log.info(data[0]['section']);
-        $log.info(data[0]['image']['image']['url']);
-        d = data[0];
-        q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count) VALUES (" + d['id'] + ",'" + (removeQuotes(d['text'])) + "','" + d['quiz_type'] + "',0,0)";
-        $log.info(q);
+      import_questions = function(data) {
+        var question, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          question = data[_i];
+          _results.push(import_single_question(question));
+        }
+        return _results;
+      };
+      import_single_question = function(question) {
+        var image, q, question_section;
+        question_section = question['section']['id'];
+        image = question['image']['image']['url'];
+        return q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count, section_id, image) VALUES (" + question['id'] + ",'" + (removeQuotes(question['text'])) + "','" + question['quiz_type'] + "',0,0, " + question_section + ",'" + (fix_image(image)) + "')";
+      };
+      import_single_answer = function(question_id, answer) {
+        var q;
+        q = "INSERT INTO Answers (id, text, correct, question_id) VALUES (" + answer['id'] + ",'" + (removeQuotes(answer['text'])) + "','" + (fix_correct(answer['correct'])) + "'," + question_id + ")";
         return query(q);
       };
       removeQuotes = function(str) {
         return str.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+      };
+      fix_correct = function(correct) {
+        if (correct === true) {
+          return 1;
+        } else {
+          return 0;
+        }
+      };
+      fix_image = function(image) {
+        if (image === '/images/fallback/default.png') {
+          return "";
+        }
       };
       fetchAll = function(result) {
         var i, output;
@@ -445,5 +393,78 @@
   })();
 
   angular.module('app').config(['$httpProvider', Loader]).run(['$rootScope', '$ionicLoading', LoaderInterceptor]);
+
+}).call(this);
+
+(function() {
+  var Question,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Question = (function() {
+    function Question(QuestionService) {
+      this.QuestionService = QuestionService;
+      this.test = __bind(this.test, this);
+      this.questions = [];
+    }
+
+    Question.prototype.test = function() {
+      return this.QuestionService.all().then(function(questions) {
+        this.questions = questions;
+      });
+    };
+
+    return Question;
+
+  })();
+
+  angular.module('app').controller('questionController', ['QuestionService', Question]);
+
+}).call(this);
+
+(function() {
+  var QuestionService;
+
+  QuestionService = (function() {
+    function QuestionService(DatabaseFactory, $log) {
+      var all, getById;
+      all = function() {
+        console.log('factory question');
+        return DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
+          return DatabaseFactory.fetchAll(result);
+        });
+      };
+      getById = function(id) {
+        return DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
+          return DatabaseFactory.fetch(result);
+        });
+      };
+      return {
+        all: all,
+        getById: getById,
+        seed: seed
+      };
+    }
+
+    return QuestionService;
+
+  })();
+
+  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
+
+}).call(this);
+
+(function() {
+  var Home;
+
+  Home = (function() {
+    function Home($log, DatabaseFactory) {
+      DatabaseFactory.seed();
+    }
+
+    return Home;
+
+  })();
+
+  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
 
 }).call(this);

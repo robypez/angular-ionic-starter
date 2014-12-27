@@ -2,7 +2,7 @@ class DatabaseFactory extends Factory
   constructor: ($log, $q, DBCONFIG, CATEGORY_SEED, $http) ->
     db = null
     init = () ->
-      db = window.openDatabase DBCONFIG.name, '1.0', 'database', -1
+      db = window.openDatabase DBCONFIG.name, '1.0', 'Test', -1
       angular.forEach DBCONFIG.tables, (table) ->
         columns = [] 
         angular.forEach table.columns, (column) ->
@@ -33,7 +33,7 @@ class DatabaseFactory extends Factory
     seed = () ->
       category_init()
       $http.get('data/question.json').then (result) ->
-        import_data result.data
+        import_questions result.data
 
     category_init = () ->
       angular.forEach CATEGORY_SEED, (category) ->
@@ -44,25 +44,38 @@ class DatabaseFactory extends Factory
           VALUES (#{category['id']},'#{removeQuotes(category['category'])}','#{category['image']}')"
       query q
 
-    import_data = (data) ->
-      $log.info data[0]
-      $log.info data[0]['text']
-      $log.info data[0]['section']
-      $log.info data[0]['image']['image']['url']
-      d = data[0]
-
-      q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count) 
-          VALUES (#{d['id']},'#{removeQuotes(d['text'])}','#{d['quiz_type']}',0,0)"
-      $log.info q
-      query q
+    import_questions = (data) ->
+      for question in data
+        import_single_question question
       
-      # for question in data
-      #   $log.info question['text']
-      #   $log.info question['section_id']
-      #   $log.info question['quiz_type']
+     
+    import_single_question = (question) ->
+      question_section = question['section']['id']
+      image = question['image']['image']['url']
+
+      q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count, section_id, image) 
+          VALUES (#{question['id']},'#{removeQuotes(question['text'])}','#{question['quiz_type']}',0,0, #{question_section},'#{fix_image(image)}')"
+      # query q
+
+      # for answer in question['answers']
+      #   import_single_answer(question['id'], answer)
+
+    import_single_answer = (question_id,answer) ->
+      q = "INSERT INTO Answers (id, text, correct, question_id) 
+          VALUES (#{answer['id']},'#{removeQuotes(answer['text'])}','#{fix_correct(answer['correct'])}',#{question_id})"
+      query q
 
     removeQuotes = (str) ->
       str.replace(/'/g, "&#39;").replace(/"/g,"&quot;")
+
+    fix_correct = (correct) ->
+      if correct == true 
+        return 1
+      else
+        return 0
+
+    fix_image = (image) ->
+      return "" if image == '/images/fallback/default.png' 
 
     fetchAll = (result) ->
       output = []

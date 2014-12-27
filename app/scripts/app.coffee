@@ -1,7 +1,7 @@
 angular
-  .module("app", ['ionic'])
+  .module("app", ['ionic','ngCordova'])
 
-  .run ($ionicPlatform, DatabaseFactory) ->
+  .run ($ionicPlatform, $cordovaSQLite, DatabaseFactory) ->
 
     $ionicPlatform.ready ->
       # Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
