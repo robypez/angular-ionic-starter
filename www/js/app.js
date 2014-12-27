@@ -30,6 +30,79 @@
 }).call(this);
 
 (function() {
+  var Home;
+
+  Home = (function() {
+    function Home($log, DatabaseFactory) {
+      DatabaseFactory.seed();
+    }
+
+    return Home;
+
+  })();
+
+  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
+
+}).call(this);
+
+(function() {
+  var Question,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Question = (function() {
+    function Question(QuestionService) {
+      this.QuestionService = QuestionService;
+      this.test = __bind(this.test, this);
+      this.questions = [];
+    }
+
+    Question.prototype.test = function() {
+      return this.QuestionService.all().then(function(questions) {
+        this.questions = questions;
+      });
+    };
+
+    return Question;
+
+  })();
+
+  angular.module('app').controller('questionController', ['QuestionService', Question]);
+
+}).call(this);
+
+(function() {
+  var QuestionService;
+
+  QuestionService = (function() {
+    function QuestionService(DatabaseFactory, $log) {
+      var all, getById;
+      all = function() {
+        console.log('factory question');
+        return DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
+          return DatabaseFactory.fetchAll(result);
+        });
+      };
+      getById = function(id) {
+        return DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
+          return DatabaseFactory.fetch(result);
+        });
+      };
+      return {
+        all: all,
+        getById: getById,
+        seed: seed
+      };
+    }
+
+    return QuestionService;
+
+  })();
+
+  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
+
+}).call(this);
+
+(function() {
   var Setting,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -241,7 +314,7 @@
       var category_init, db, fetch, fetchAll, fix_correct, fix_image, import_category, import_questions, import_single_answer, import_single_question, init, query, removeQuotes, seed;
       db = null;
       init = function() {
-        db = window.openDatabase(DBCONFIG.name, '1.0', 'Test', -1);
+        db = window.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
         return angular.forEach(DBCONFIG.tables, function(table) {
           var columns, q;
           columns = [];
@@ -299,7 +372,8 @@
         var image, q, question_section;
         question_section = question['section']['id'];
         image = question['image']['image']['url'];
-        return q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count, section_id, image) VALUES (" + question['id'] + ",'" + (removeQuotes(question['text'])) + "','" + question['quiz_type'] + "',0,0, " + question_section + ",'" + (fix_image(image)) + "')";
+        q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count, section_id, image) VALUES (" + question['id'] + ",'" + (removeQuotes(question['text'])) + "','" + question['quiz_type'] + "',0,0, " + question_section + ",'" + (fix_image(image)) + "')";
+        return query(q);
       };
       import_single_answer = function(question_id, answer) {
         var q;
@@ -393,78 +467,5 @@
   })();
 
   angular.module('app').config(['$httpProvider', Loader]).run(['$rootScope', '$ionicLoading', LoaderInterceptor]);
-
-}).call(this);
-
-(function() {
-  var Question,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  Question = (function() {
-    function Question(QuestionService) {
-      this.QuestionService = QuestionService;
-      this.test = __bind(this.test, this);
-      this.questions = [];
-    }
-
-    Question.prototype.test = function() {
-      return this.QuestionService.all().then(function(questions) {
-        this.questions = questions;
-      });
-    };
-
-    return Question;
-
-  })();
-
-  angular.module('app').controller('questionController', ['QuestionService', Question]);
-
-}).call(this);
-
-(function() {
-  var QuestionService;
-
-  QuestionService = (function() {
-    function QuestionService(DatabaseFactory, $log) {
-      var all, getById;
-      all = function() {
-        console.log('factory question');
-        return DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
-          return DatabaseFactory.fetchAll(result);
-        });
-      };
-      getById = function(id) {
-        return DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
-          return DatabaseFactory.fetch(result);
-        });
-      };
-      return {
-        all: all,
-        getById: getById,
-        seed: seed
-      };
-    }
-
-    return QuestionService;
-
-  })();
-
-  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
-
-}).call(this);
-
-(function() {
-  var Home;
-
-  Home = (function() {
-    function Home($log, DatabaseFactory) {
-      DatabaseFactory.seed();
-    }
-
-    return Home;
-
-  })();
-
-  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
 
 }).call(this);

@@ -2,7 +2,7 @@ class DatabaseFactory extends Factory
   constructor: ($log, $q, DBCONFIG, CATEGORY_SEED, $http) ->
     db = null
     init = () ->
-      db = window.openDatabase DBCONFIG.name, '1.0', 'Test', -1
+      db = window.openDatabase DBCONFIG.name, '1.0', 'database', -1
       angular.forEach DBCONFIG.tables, (table) ->
         columns = [] 
         angular.forEach table.columns, (column) ->
@@ -55,7 +55,7 @@ class DatabaseFactory extends Factory
 
       q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count, section_id, image) 
           VALUES (#{question['id']},'#{removeQuotes(question['text'])}','#{question['quiz_type']}',0,0, #{question_section},'#{fix_image(image)}')"
-      # query q
+      query q
 
       # for answer in question['answers']
       #   import_single_answer(question['id'], answer)
