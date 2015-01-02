@@ -1,6 +1,7 @@
 ion-view(title='Preferenze')
   
   ion-content(has-header='false', padding='true')
+
     list
       .item.item-divider Generali
       ion-toggle(ng-model="setting.examType", ng-change="setting.examTypeChecked()", toggle-class="toggle-calm", ng-true-value="'oltre'", ng-false-value="'entro'")
@@ -13,4 +14,4 @@ ion-view(title='Preferenze')
         .input-label
          | Numero di domande per sezione
         select(ng-model="setting.questionNumber" ng-change="setting.questionNumberChecked()" ng-options="option for option in setting.questionPossibility")
-      
+          option(value='') {{setting.questionNumber}}

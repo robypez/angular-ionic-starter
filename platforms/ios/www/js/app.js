@@ -1,6 +1,6 @@
 'use strict';
 (function() {
-  angular.module("app", ['ionic']).run(function($ionicPlatform, DatabaseFactory) {
+  angular.module("app", ['ionic', 'ngCordova']).run(function($ionicPlatform, $cordovaSQLite, DatabaseFactory) {
     return $ionicPlatform.ready(function() {
       if (window.cordova && window.cordova.plugins.Keyboard) {
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
@@ -26,305 +26,6 @@
     });
     return $urlRouterProvider.otherwise("/home");
   });
-
-}).call(this);
-
-(function() {
-  var Question,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  Question = (function() {
-    function Question(QuestionService) {
-      this.QuestionService = QuestionService;
-      this.test = __bind(this.test, this);
-      this.questions = [];
-      console.log('question controller init');
-    }
-
-    Question.prototype.test = function() {
-      return this.QuestionService.all().then(function(questions) {
-        this.questions = questions;
-      });
-    };
-
-    return Question;
-
-  })();
-
-  angular.module('app').controller('questionController', ['QuestionService', Question]);
-
-}).call(this);
-
-(function() {
-  var QuestionService;
-
-  QuestionService = (function() {
-    function QuestionService(DatabaseFactory, $log) {
-      var all, getById;
-      all = function() {
-        console.log('factory question');
-        return DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
-          return DatabaseFactory.fetchAll(result);
-        });
-      };
-      getById = function(id) {
-        return DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
-          return DatabaseFactory.fetch(result);
-        });
-      };
-      return {
-        all: all,
-        getById: getById,
-        seed: seed
-      };
-    }
-
-    return QuestionService;
-
-  })();
-
-  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
-
-}).call(this);
-
-(function() {
-  var dataService;
-
-  dataService = (function() {
-    function dataService($window) {
-      var get, getObject, set, setObject;
-      set = function(key, value) {
-        $window.localStorage[key] = value;
-      };
-      get = function(key, defaultValue) {
-        return $window.localStorage[key] || defaultValue;
-      };
-      setObject = function(key, value) {
-        $window.localStorage[key] = JSON.stringify(value);
-      };
-      getObject = function(key) {
-        return JSON.parse($window.localStorage[key] || '{}');
-      };
-      return {
-        set: set,
-        getObject: getObject,
-        get: get,
-        setObject: setObject
-      };
-    }
-
-    return dataService;
-
-  })();
-
-  angular.module('app').factory('DataService', ['$window', dataService]);
-
-}).call(this);
-
-(function() {
-  var DBconfig;
-
-  DBconfig = (function() {
-    function DBconfig() {
-      return {
-        name: 'nautica',
-        tables: [
-          {
-            name: 'questions',
-            columns: [
-              {
-                name: 'id',
-                type: 'integer primary key'
-              }, {
-                name: 'text',
-                type: 'text'
-              }, {
-                name: 'exam_type',
-                type: 'text'
-              }, {
-                name: 'section_id',
-                type: 'integer'
-              }, {
-                name: 'errors_count',
-                type: 'integer'
-              }, {
-                name: 'done_count',
-                type: 'integer'
-              }, {
-                name: 'image',
-                type: 'text'
-              }
-            ]
-          }, {
-            name: 'answers',
-            columns: [
-              {
-                name: 'id',
-                type: 'integer primary key'
-              }, {
-                name: 'text',
-                type: 'text'
-              }, {
-                name: 'correct',
-                type: 'integer'
-              }
-            ]
-          }, {
-            name: 'section',
-            columns: [
-              {
-                name: 'id',
-                type: 'integer primary key'
-              }, {
-                name: 'label',
-                type: 'text'
-              }, {
-                name: 'image',
-                type: 'text'
-              }
-            ]
-          }
-        ]
-      };
-    }
-
-    return DBconfig;
-
-  })();
-
-  angular.module('app').constant('DBCONFIG', DBconfig());
-
-}).call(this);
-
-(function() {
-  var DatabaseFactory;
-
-  DatabaseFactory = (function() {
-    function DatabaseFactory($log, $q, DBCONFIG, $http) {
-      var db, fetch, fetchAll, import_data, init, query, seed;
-      db = null;
-      init = function() {
-        db = window.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
-        return angular.forEach(DBCONFIG.tables, function(table) {
-          var columns, q;
-          columns = [];
-          angular.forEach(table.columns, function(column) {
-            return columns.push("" + column.name + " " + column.type);
-          });
-          q = "CREATE TABLE IF NOT EXISTS " + table.name + " (" + (columns.join(',')) + ")";
-          query(q);
-          return $log.info("Table " + table.name + " initialized");
-        });
-      };
-      query = function(query, bindings) {
-        var deferred;
-        bindings = (typeof bindings !== "undefined" ? bindings : []);
-        deferred = $q.defer();
-        db.transaction(function(transaction) {
-          transaction.executeSql(query, bindings, (function(transaction, result) {
-            deferred.resolve(result);
-          }), function(transaction, error) {
-            deferred.reject(error);
-          });
-        });
-        return deferred.promise;
-      };
-      seed = function() {
-        return $http.get('data/question.json').then(function(result) {
-          return import_data(result.data);
-        });
-      };
-      import_data = function(data) {
-        return $log.info(data);
-      };
-      fetchAll = function(result) {
-        var i, output;
-        output = [];
-        i = 0;
-        while (i < result.rows.length) {
-          output.push(result.rows.item(i));
-          i++;
-        }
-        return output;
-      };
-      fetch = function(result) {
-        return result.rows.item(0);
-      };
-      return {
-        fetch: fetch,
-        fetchAll: fetchAll,
-        init: init,
-        query: query,
-        seed: seed
-      };
-    }
-
-    return DatabaseFactory;
-
-  })();
-
-  angular.module('app').factory('DatabaseFactory', ['$log', '$q', 'DBCONFIG', '$http', DatabaseFactory]);
-
-}).call(this);
-
-(function() {
-  var Loader, LoaderInterceptor;
-
-  Loader = (function() {
-    function Loader($httpProvider) {
-      $httpProvider.interceptors.push(function($rootScope) {
-        return {
-          request: function(config) {
-            $rootScope.$broadcast("loading:show");
-            return config;
-          },
-          response: function(response) {
-            $rootScope.$broadcast("loading:hide");
-            return response;
-          }
-        };
-      });
-      return;
-    }
-
-    return Loader;
-
-  })();
-
-  LoaderInterceptor = (function() {
-    function LoaderInterceptor($rootScope, $ionicLoading) {
-      $rootScope.$on("loading:show", function() {
-        $ionicLoading.show({
-          template: "Loading Question"
-        });
-      });
-      $rootScope.$on("loading:hide", function() {
-        $ionicLoading.hide();
-      });
-      return;
-    }
-
-    return LoaderInterceptor;
-
-  })();
-
-  angular.module('app').config(['$httpProvider', Loader]).run(['$rootScope', '$ionicLoading', LoaderInterceptor]);
-
-}).call(this);
-
-(function() {
-  var Home;
-
-  Home = (function() {
-    function Home($log, DatabaseFactory) {
-      DatabaseFactory.seed();
-    }
-
-    return Home;
-
-  })();
-
-  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
 
 }).call(this);
 
@@ -375,5 +76,404 @@
   })();
 
   angular.module('app').controller('settingController', ['DataService', '$log', Setting]);
+
+}).call(this);
+
+(function() {
+  var CategorySeed;
+
+  CategorySeed = (function() {
+    function CategorySeed() {
+      return [
+        {
+          id: 1,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 2,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 3,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 4,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 5,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }, {
+          id: 6,
+          category: "XXXXXX",
+          image: "sadasdasd"
+        }
+      ];
+    }
+
+    return CategorySeed;
+
+  })();
+
+  angular.module('app').constant('CATEGORY_SEED', CategorySeed());
+
+}).call(this);
+
+(function() {
+  var dataService;
+
+  dataService = (function() {
+    function dataService($window) {
+      var get, getObject, set, setObject;
+      set = function(key, value) {
+        $window.localStorage[key] = value;
+      };
+      get = function(key, defaultValue) {
+        return $window.localStorage[key] || defaultValue;
+      };
+      setObject = function(key, value) {
+        $window.localStorage[key] = JSON.stringify(value);
+      };
+      getObject = function(key) {
+        return JSON.parse($window.localStorage[key] || '{}');
+      };
+      return {
+        set: set,
+        getObject: getObject,
+        get: get,
+        setObject: setObject
+      };
+    }
+
+    return dataService;
+
+  })();
+
+  angular.module('app').factory('DataService', ['$window', dataService]);
+
+}).call(this);
+
+(function() {
+  var DBconfig;
+
+  DBconfig = (function() {
+    function DBconfig() {
+      return {
+        name: 'nautica',
+        tables: [
+          {
+            name: 'Questions',
+            columns: [
+              {
+                name: 'id',
+                type: 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'
+              }, {
+                name: 'text',
+                type: 'TEXT'
+              }, {
+                name: 'exam_type',
+                type: 'TEXT'
+              }, {
+                name: 'section_id',
+                type: 'REFERENCES Sections(id)'
+              }, {
+                name: 'errors_count',
+                type: 'INTEGER'
+              }, {
+                name: 'done_count',
+                type: 'INTEGER'
+              }, {
+                name: 'image',
+                type: 'TEXT'
+              }
+            ]
+          }, {
+            name: 'Answers',
+            columns: [
+              {
+                name: 'id',
+                type: 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'
+              }, {
+                name: 'text',
+                type: 'TEXT'
+              }, {
+                name: 'correct',
+                type: 'INTEGER'
+              }, {
+                name: 'question_id',
+                type: 'REFERENCES Questions(id)'
+              }
+            ]
+          }, {
+            name: 'Sections',
+            columns: [
+              {
+                name: 'id',
+                type: 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'
+              }, {
+                name: 'label',
+                type: 'TEXT'
+              }, {
+                name: 'image',
+                type: 'TEXT'
+              }
+            ]
+          }
+        ]
+      };
+    }
+
+    return DBconfig;
+
+  })();
+
+  angular.module('app').constant('DBCONFIG', DBconfig());
+
+}).call(this);
+
+(function() {
+  var DatabaseFactory;
+
+  DatabaseFactory = (function() {
+    function DatabaseFactory($log, $q, DBCONFIG, CATEGORY_SEED, $http) {
+      var categoryInit, db, fetch, fetchAll, fixCorrect, fixImage, importCategory, importQuestion, importSingleAnswer, importSingleQuestion, init, query, removeQuotes, seed;
+      db = null;
+      init = function() {
+        db = window.sqlitePlugin.openDatabase(DBCONFIG.name, '1.0', 'database', -1);
+        return angular.forEach(DBCONFIG.tables, function(table) {
+          var columns, q;
+          columns = [];
+          angular.forEach(table.columns, function(column) {
+            return columns.push("" + column.name + " " + column.type);
+          });
+          q = "DROP TABLE " + table.name;
+          query(q);
+          $log.info("Table " + table.name + " deleted");
+          q = "CREATE TABLE IF NOT EXISTS " + table.name + " (" + (columns.join(',')) + ")";
+          query(q);
+          return $log.info("Table " + table.name + " initialized");
+        });
+      };
+      query = function(query, bindings) {
+        var deferred;
+        bindings = (typeof bindings !== "undefined" ? bindings : []);
+        deferred = $q.defer();
+        db.transaction(function(transaction) {
+          transaction.executeSql(query, bindings, (function(transaction, result) {
+            deferred.resolve(result);
+          }), function(transaction, error) {
+            deferred.reject(error);
+            $log.error(error.message);
+          });
+        });
+        return deferred.promise;
+      };
+      seed = function() {
+        categoryInit();
+        return $http.get('data/question.json').then(function(result) {
+          return importQuestion(result.data);
+        });
+      };
+      categoryInit = function() {
+        return angular.forEach(CATEGORY_SEED, function(category) {
+          return importCategory(category);
+        });
+      };
+      importCategory = function(category) {
+        var q;
+        q = "INSERT INTO Sections (id, label, image) VALUES (" + category['id'] + ",'" + (removeQuotes(category['category'])) + "','" + category['image'] + "')";
+        return query(q);
+      };
+      importQuestion = function(data) {
+        var question, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          question = data[_i];
+          _results.push(importSingleQuestion(question));
+        }
+        return _results;
+      };
+      importSingleQuestion = function(question) {
+        var answer, image, q, question_section, _i, _len, _ref, _results;
+        $log.info('importing question...');
+        question_section = question['section']['id'];
+        image = question['image']['image']['url'];
+        q = "INSERT INTO Questions (id, text, exam_type, errors_count, done_count, section_id, image) VALUES (" + question['id'] + ",'" + (removeQuotes(question['text'])) + "','" + question['quiz_type'] + "',0,0, " + question_section + ",'" + (fixImage(image)) + "')";
+        query(q);
+        _ref = question['answers'];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          answer = _ref[_i];
+          _results.push(importSingleAnswer(question['id'], answer));
+        }
+        return _results;
+      };
+      importSingleAnswer = function(question_id, answer) {
+        var q;
+        q = "INSERT INTO Answers (id, text, correct, question_id) VALUES (" + answer['id'] + ",'" + (removeQuotes(answer['text'])) + "','" + (fixCorrect(answer['correct'])) + "'," + question_id + ")";
+        return query(q);
+      };
+      removeQuotes = function(str) {
+        return str.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+      };
+      fixCorrect = function(correct) {
+        if (correct === true) {
+          return 1;
+        } else {
+          return 0;
+        }
+      };
+      fixImage = function(image) {
+        if (image === '/images/fallback/default.png') {
+          return "";
+        }
+      };
+      fetchAll = function(result) {
+        var i, output;
+        output = [];
+        i = 0;
+        while (i < result.rows.length) {
+          output.push(result.rows.item(i));
+          i++;
+        }
+        return output;
+      };
+      fetch = function(result) {
+        return result.rows.item(0);
+      };
+      return {
+        fetch: fetch,
+        fetchAll: fetchAll,
+        init: init,
+        query: query,
+        seed: seed
+      };
+    }
+
+    return DatabaseFactory;
+
+  })();
+
+  angular.module('app').factory('DatabaseFactory', ['$log', '$q', 'DBCONFIG', 'CATEGORY_SEED', '$http', DatabaseFactory]);
+
+}).call(this);
+
+(function() {
+  var Loader, LoaderInterceptor;
+
+  Loader = (function() {
+    function Loader($httpProvider) {
+      $httpProvider.interceptors.push(function($rootScope) {
+        return {
+          request: function(config) {
+            $rootScope.$broadcast("loading:show");
+            return config;
+          },
+          response: function(response) {
+            $rootScope.$broadcast("loading:hide");
+            return response;
+          }
+        };
+      });
+      return;
+    }
+
+    return Loader;
+
+  })();
+
+  LoaderInterceptor = (function() {
+    function LoaderInterceptor($rootScope, $ionicLoading) {
+      $rootScope.$on("loading:show", function() {
+        $ionicLoading.show({
+          template: "Loading Question"
+        });
+      });
+      $rootScope.$on("loading:hide", function() {
+        $ionicLoading.hide();
+      });
+      return;
+    }
+
+    return LoaderInterceptor;
+
+  })();
+
+  angular.module('app').config(['$httpProvider', Loader]).run(['$rootScope', '$ionicLoading', LoaderInterceptor]);
+
+}).call(this);
+
+(function() {
+  var Question,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Question = (function() {
+    function Question(QuestionService) {
+      this.QuestionService = QuestionService;
+      this.test = __bind(this.test, this);
+      this.questions = [];
+    }
+
+    Question.prototype.test = function() {
+      return this.QuestionService.all().then(function(questions) {
+        this.questions = questions;
+      });
+    };
+
+    return Question;
+
+  })();
+
+  angular.module('app').controller('questionController', ['QuestionService', Question]);
+
+}).call(this);
+
+(function() {
+  var QuestionService;
+
+  QuestionService = (function() {
+    function QuestionService(DatabaseFactory, $log) {
+      var all, getById;
+      all = function() {
+        console.log('factory question');
+        return DatabaseFactory.query("SELECT * FROM documents").then(function(result) {
+          return DatabaseFactory.fetchAll(result);
+        });
+      };
+      getById = function(id) {
+        return DatabaseFactory.query("SELECT * FROM documents WHERE id = ?", [id]).then(function(result) {
+          return DatabaseFactory.fetch(result);
+        });
+      };
+      return {
+        all: all,
+        getById: getById,
+        seed: seed
+      };
+    }
+
+    return QuestionService;
+
+  })();
+
+  angular.module('app').factory('QuestionService', ['DatabaseFactory', '$log', QuestionService]);
+
+}).call(this);
+
+(function() {
+  var Home;
+
+  Home = (function() {
+    function Home($log, DatabaseFactory) {
+      DatabaseFactory.seed();
+    }
+
+    return Home;
+
+  })();
+
+  angular.module('app').controller('homeController', ['$log', 'DatabaseFactory', Home]);
 
 }).call(this);

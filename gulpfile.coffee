@@ -3,22 +3,15 @@
 bower    = require('bower')
 sh       = require('shelljs')
 gulp     = require("gulp")
-ngClassify = require 'gulp-ng-classify'
 $        = require("gulp-load-plugins")(lazy: false)
 $run     = require('run-sequence')
 $logger  = $.util.log
-ngClassifyContent = ''
-ngClassifyOptions = {
-                    controller: {format: 'upperCamelCase', suffix: 'Ctrl'},
-                    factory:    {format: 'CamelCase'}
-                  }
 
 paths =
   styles:  ['./app/styles/ionic.app.scss']
-  scripts: ['./app/scripts/**/*.coffee']
+  scripts: ['./app/scripts/**/*.js']
   views:   ['./app/views/**/*.jade']
   assets:  ['./app/assets/**']
-
 
 
 gulp.task "copy", ->
@@ -36,17 +29,14 @@ gulp.task 'sass', (done) ->
     .pipe(gulp.dest('./www/css/'))
     .pipe($.size(showFiles: true))
 
-gulp.task 'coffee', (done) ->
+gulp.task 'js', (done) ->
   gulp.src(paths.scripts)
-    .pipe ngClassify(ngClassifyContent,ngClassifyOptions)
     .pipe($.plumber(errorHandler: $.notify.onError("Error: <%= error.message %>")))
-    .pipe($.coffee(bare: false).on('error', $logger))
     .pipe($.jshint(".jshintrc"))
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe($.concat('app.js'))
     .pipe($.insert.prepend("'use strict';\n"))
     .pipe(gulp.dest('./www/js'))    .pipe($.size(showFiles: true))
-
 
 
 gulp.task 'jade', (done) ->
@@ -62,11 +52,11 @@ gulp.task 'jade', (done) ->
 
 gulp.task 'watch', ->
   gulp.watch(paths.styles, ['sass'])
-  gulp.watch(paths.scripts, ['coffee'])
+  gulp.watch(paths.scripts, ['js'])
   gulp.watch(paths.views, ['jade'])
 
 gulp.task 'build', (callback) ->
-  $run("sass", "coffee", "jade", callback)
+  $run("sass", "js", "jade", callback)
 
 gulp.task('default', ['build']);
 

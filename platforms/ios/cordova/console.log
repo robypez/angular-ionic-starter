@@ -50,3 +50,16 @@
 2014-12-18 23:37:42.684 ionic-gulp-seed[32548:1819141] Finished load of: http://192.168.1.9:8100/#/home
 2014-12-18 23:37:59.693 ionic-gulp-seed[32548:1819141] Resetting plugins due to page load.
 2014-12-18 23:37:59.860 ionic-gulp-seed[32548:1819141] Finished load of: http://192.168.1.9:8100/#/setting
+2014-12-27 15:49:24.540 ionic-gulp-seed[34081:906904] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/17D06A60-3E0F-4292-BBF6-6355ABC5FFFC/Library/Cookies/Cookies.binarycookies
+2014-12-27 15:49:24.975 ionic-gulp-seed[34081:906904] Apache Cordova native platform version 3.7.0 is starting.
+2014-12-27 15:49:24.975 ionic-gulp-seed[34081:906904] Multi-tasking -> Device: YES, App: YES
+2014-12-27 15:49:25.001 ionic-gulp-seed[34081:906904] Unlimited access to network resources
+2014-12-27 15:49:25.586 ionic-gulp-seed[34081:906904] [CDVTimer][keyboard] 0.118971ms
+2014-12-27 15:49:25.586 ionic-gulp-seed[34081:906904] [CDVTimer][TotalPluginStartup] 0.460029ms
+2014-12-27 15:49:26.060 ionic-gulp-seed[34081:906904] Resetting plugins due to page load.
+2014-12-27 15:49:26.524 ionic-gulp-seed[34081:906904] Finished load of: file:///Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Bundle/Application/86169337-743B-4A92-B2B8-95F54B709F31/ionic-gulp-seed.app/www/index.html#/home
+2014-12-27 15:49:26.654 ionic-gulp-seed[34081:906904] Detected docs path: /Users/scrivoaroby/Library/Developer/CoreSimulator/Devices/43E87D9B-5A88-4E3B-BF94-FDBE2F49195B/data/Containers/Data/Application/17D06A60-3E0F-4292-BBF6-6355ABC5FFFC/Documents
+2014-12-27 15:49:26.687 ionic-gulp-seed[34081:906904] Good news: SQLite is thread safe!
+2014-12-27 15:49:26.687 ionic-gulp-seed[34081:906904] THREAD WARNING: ['SQLitePlugin'] took '33.456055' ms. Plugin should use a background thread.
+2014-12-27 15:49:26.688 ionic-gulp-seed[34081:906904] SQLitePlugin openargs: {"name":"nautica"}
+2014-12-27 15:49:26.688 ionic-gulp-seed[34081:906904] DB opened: nautica
